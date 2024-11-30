@@ -32,7 +32,7 @@ int main() {
     }
     if (command >= 0 && command <= 4) {
         printf("Enter the text (end with two newlines):\n");
-        getchar(); // Consume leftover newline
+        getchar();
         text = read_text(&text_size);
         if (!text || text_size == 0) {
             printf("Error: No text provided\n");
