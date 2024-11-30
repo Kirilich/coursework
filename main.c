@@ -42,25 +42,25 @@ int main() {
     }
     switch (command) {
         case 0:
-            printf(text);
+            printf("%s", text);
             break;
         case 1:
             if (!process_dollar_symbols(text)) {
                 printf("Error: No '$' found in the text\n");
             } else {
-                printf(text);
+                printf("%s", text);
             }
             break;
         case 2:
             sort_sentences_by_word_count(text);
-            printf(text);
+            printf("%s", text);
             break;
         case 3:
             print_character_frequencies(text);
             break;
         case 4:
             remove_even_index_sentences(&text);
-            printf(text);
+            printf("%s", text);
             break;
         case 5:
             print_help();
