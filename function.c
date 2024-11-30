@@ -31,9 +31,6 @@ void split_into_sentences(const char *text, char ***sentences, size_t *count) {
     const char *start = text;
     while (*text) {
         if (*text == '.') {
-            while (isspace((unsigned char)*start)) {
-                start++;
-            }
             size_t length = text - start + 1;
             char *sentence = (char *)malloc((length + 1) * sizeof(char));
             if (sentence) {
@@ -101,7 +98,6 @@ size_t count_words(const char *sentence) {
         }
         sentence++;
     }
-
     return count;
 }
 
@@ -137,7 +133,10 @@ char* read_text(size_t *text_size) {
     size_t capacity = 1024;
     size_t length = 0;
     text = (char *)malloc(capacity);
-    if (!text) return NULL;
+    if (!text) {
+        free(text);
+        return NULL;
+    }
     char c;
     int newline_count = 0;
     while ((c = getchar()) != EOF) {
@@ -178,11 +177,14 @@ int process_dollar_symbols(char *text) {
     char *start = strchr(text, '$');
     char *end = strrchr(text, '$');
     if (!start || !end) return 0;
-
     if (start == end) {
         memmove(start, start + 1, strlen(start));
     } else {
-        memmove(start, end + 1, strlen(end + 1) + 1);
+        memmove(text, start + 1, strlen(start + 1) + 1);
+        end = strrchr(text, '$'); 
+        if (end) {
+            *end = '\0';
+        }
     }
     return 1;
 }
@@ -201,12 +203,9 @@ merge_sentences: Объединение предложений. */
 void sort_sentences_by_word_count(char *text) {
     char **sentences = NULL;
     size_t sentence_count = 0;
-
     split_into_sentences(text, &sentences, &sentence_count);
     qsort(sentences, sentence_count, sizeof(char*), compare_sentence_word_count);
-
     merge_sentences(sentences, sentence_count, text);
-
     for (size_t i = 0; i < sentence_count; i++) {
         free(sentences[i]);
     }
@@ -229,7 +228,6 @@ void print_character_frequencies(const char *text) {
             frequencies[(unsigned char)*p]++;
         }
     }
-
     for (const char *p = text; *p; p++) {
         if (!isspace(*p) && frequencies[(unsigned char)*p]) {
             printf("%c: %d\n", *p, frequencies[(unsigned char)*p]);
@@ -307,7 +305,6 @@ void remove_duplicate_sentences(char **text) {
         if (!to_keep[i]) continue;
         for (size_t j = i + 1; j < sentence_count; j++) {
             if (!to_keep[j]) continue;
-
             if (strcasecmp(sentences[i], sentences[j]) == 0) {
                 to_keep[j] = 0;
             }
