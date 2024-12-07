@@ -53,6 +53,9 @@ void split_into_sentences(const char *text, char ***sentences, size_t *count) {
             start = text + 1;
         }
         text++;
+        if(*start == '\n' || *start == ' ') {
+            start++;
+        }
     }
     *sentences = result;
     *count = sentence_count;
@@ -157,10 +160,14 @@ char* read_text(size_t *text_size) {
             newline_count = 0;
         }
     }
-    length-=2;
+    length-=1;
     text[length] = '\0';
     *text_size = length;
     remove_duplicate_sentences(&text);
+    char **sentences = NULL;
+    size_t sentence_count = 0;
+    split_into_sentences(text, &sentences, &sentence_count);
+    merge_sentences(sentences, sentence_count, text);
     return text;
 }
 
@@ -224,6 +231,9 @@ printf (из <stdio.h>): Вывод информации. */
 void print_character_frequencies(const char *text) {
     int frequencies[256] = {0};
     for (const char *p = text; *p; p++) {
+        if(*p == '.') {
+            continue;
+        }
         if (!isspace(*p)) {
             frequencies[(unsigned char)*p]++;
         }
@@ -329,7 +339,6 @@ void remove_duplicate_sentences(char **text) {
         if (to_keep[i]) {
             strcpy(new_text + offset, sentences[i]);
             offset += strlen(sentences[i]);
-            new_text[offset++] = '\n';
         }
     }
     new_text[offset] = '\0';
